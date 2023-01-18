@@ -2,7 +2,7 @@ package fastjson
 
 import (
 	"fmt"
-	"github.com/valyala/fastjson/fastfloat"
+	"github.com/gozelle/fastjson/fastfloat"
 	"strconv"
 	"strings"
 	"unicode/utf16"
@@ -17,7 +17,7 @@ import (
 type Parser struct {
 	// b contains working copy of the string to be parsed.
 	b []byte
-
+	
 	// c is a cache for json values.
 	c cache
 }
@@ -31,7 +31,7 @@ func (p *Parser) Parse(s string) (*Value, error) {
 	s = skipWS(s)
 	p.b = append(p.b[:0], s...)
 	p.c.reset()
-
+	
 	v, tail, err := parseValue(b2s(p.b), &p.c, 0)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse JSON: %s; unparsed tail: %q", err, startEndString(tail))
@@ -106,7 +106,7 @@ func parseValue(s string, c *cache, depth int) (*Value, string, error) {
 	if depth > MaxDepth {
 		return nil, s, fmt.Errorf("too big depth for the nested JSON; it exceeds %d", MaxDepth)
 	}
-
+	
 	if s[0] == '{' {
 		v, tail, err := parseObject(s[1:], c, depth)
 		if err != nil {
@@ -156,7 +156,7 @@ func parseValue(s string, c *cache, depth int) (*Value, string, error) {
 		}
 		return valueNull, s[len("null"):], nil
 	}
-
+	
 	ns, tail, err := parseRawNumber(s)
 	if err != nil {
 		return nil, tail, fmt.Errorf("cannot parse number: %s", err)
@@ -172,28 +172,28 @@ func parseArray(s string, c *cache, depth int) (*Value, string, error) {
 	if len(s) == 0 {
 		return nil, s, fmt.Errorf("missing ']'")
 	}
-
+	
 	if s[0] == ']' {
 		v := c.getValue()
 		v.t = TypeArray
 		v.a = v.a[:0]
 		return v, s[1:], nil
 	}
-
+	
 	a := c.getValue()
 	a.t = TypeArray
 	a.a = a.a[:0]
 	for {
 		var v *Value
 		var err error
-
+		
 		s = skipWS(s)
 		v, s, err = parseValue(s, c, depth)
 		if err != nil {
 			return nil, s, fmt.Errorf("cannot parse array value: %s", err)
 		}
 		a.a = append(a.a, v)
-
+		
 		s = skipWS(s)
 		if len(s) == 0 {
 			return nil, s, fmt.Errorf("unexpected end of array")
@@ -215,21 +215,21 @@ func parseObject(s string, c *cache, depth int) (*Value, string, error) {
 	if len(s) == 0 {
 		return nil, s, fmt.Errorf("missing '}'")
 	}
-
+	
 	if s[0] == '}' {
 		v := c.getValue()
 		v.t = TypeObject
 		v.o.reset()
 		return v, s[1:], nil
 	}
-
+	
 	o := c.getValue()
 	o.t = TypeObject
 	o.o.reset()
 	for {
 		var err error
 		kv := o.o.getKV()
-
+		
 		// Parse key.
 		s = skipWS(s)
 		if len(s) == 0 || s[0] != '"' {
@@ -244,7 +244,7 @@ func parseObject(s string, c *cache, depth int) (*Value, string, error) {
 			return nil, s, fmt.Errorf("missing ':' after object key")
 		}
 		s = s[1:]
-
+		
 		// Parse value
 		s = skipWS(s)
 		kv.v, s, err = parseValue(s, c, depth)
@@ -274,7 +274,7 @@ func escapeString(dst []byte, s string) []byte {
 		dst = append(dst, '"')
 		return dst
 	}
-
+	
 	// Slow path.
 	return strconv.AppendQuote(dst, s)
 }
@@ -297,7 +297,7 @@ func unescapeStringBestEffort(s string) string {
 		// Fast path - nothing to unescape.
 		return s
 	}
-
+	
 	// Slow path - unescape string.
 	b := s2b(s) // It is safe to do, since s points to a byte slice in Parser.b.
 	b = b[:n]
@@ -340,7 +340,7 @@ func unescapeStringBestEffort(s string) string {
 				b = append(b, string(rune(x))...)
 				break
 			}
-
+			
 			// Surrogate.
 			// See https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates
 			if len(s) < 6 || s[0] != '\\' || s[1] != 'u' {
@@ -397,7 +397,7 @@ func parseRawString(s string) (string, string, error) {
 		// Fast path. No escaped ".
 		return s[:n], s[n+1:], nil
 	}
-
+	
 	// Slow path - possible escaped " found.
 	ss := s
 	for {
@@ -409,7 +409,7 @@ func parseRawString(s string) (string, string, error) {
 			return ss[:len(ss)-len(s)+n], s[n+1:], nil
 		}
 		s = s[n+1:]
-
+		
 		n = strings.IndexByte(s, '"')
 		if n < 0 {
 			return ss, "", fmt.Errorf(`missing closing '"'`)
@@ -422,7 +422,7 @@ func parseRawString(s string) (string, string, error) {
 
 func parseRawNumber(s string) (string, string, error) {
 	// The caller must ensure len(s) > 0
-
+	
 	// Find the end of the number.
 	for i := 0; i < len(s); i++ {
 		ch := s[i]
@@ -531,10 +531,10 @@ func (o *Object) Get(key string) *Value {
 			}
 		}
 	}
-
+	
 	// Slow path - unescape object keys.
 	o.unescapeKeys()
-
+	
 	for _, kv := range o.kvs {
 		if kv.k == key {
 			return kv.v
@@ -551,9 +551,9 @@ func (o *Object) Visit(f func(key []byte, v *Value)) {
 	if o == nil {
 		return
 	}
-
+	
 	o.unescapeKeys()
-
+	
 	for _, kv := range o.kvs {
 		f(s2b(kv.k), kv.v)
 	}
@@ -627,25 +627,25 @@ type Type int
 const (
 	// TypeNull is JSON null.
 	TypeNull Type = 0
-
+	
 	// TypeObject is JSON object type.
 	TypeObject Type = 1
-
+	
 	// TypeArray is JSON array type.
 	TypeArray Type = 2
-
+	
 	// TypeString is JSON string type.
 	TypeString Type = 3
-
+	
 	// TypeNumber is JSON number type.
 	TypeNumber Type = 4
-
+	
 	// TypeTrue is JSON true.
 	TypeTrue Type = 5
-
+	
 	// TypeFalse is JSON false.
 	TypeFalse Type = 6
-
+	
 	typeRawString Type = 7
 )
 
@@ -666,7 +666,7 @@ func (t Type) String() string {
 		return "false"
 	case TypeNull:
 		return "null"
-
+	
 	// typeRawString is skipped intentionally,
 	// since it shouldn't be visible to user.
 	default:

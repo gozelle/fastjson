@@ -2,7 +2,7 @@ package fastjson_test
 
 import (
 	"fmt"
-	"github.com/valyala/fastjson"
+	"github.com/gozelle/fastjson"
 	"log"
 	"strconv"
 )
@@ -13,23 +13,23 @@ func ExampleParser_Parse() {
 	if err != nil {
 		log.Fatalf("cannot parse json: %s", err)
 	}
-
+	
 	fmt.Printf("foo=%s, baz=%d", v.GetStringBytes("foo"), v.GetInt("baz"))
-
+	
 	// Output:
 	// foo=bar, baz=123
 }
 
 func ExampleParser_Parse_reuse() {
 	var p fastjson.Parser
-
+	
 	// p may be re-used for parsing multiple json strings.
 	// This improves parsing speed by reducing the number
 	// of memory allocations.
 	//
 	// Parse call invalidates all the objects previously obtained from p,
 	// so don't hold these objects after parsing the next json.
-
+	
 	for i := 0; i < 3; i++ {
 		s := fmt.Sprintf(`["foo_%d","bar_%d","%d"]`, i, i, i)
 		v, err := p.Parse(s)
@@ -39,7 +39,7 @@ func ExampleParser_Parse_reuse() {
 		key := strconv.Itoa(i)
 		fmt.Printf("a[%d]=%s\n", i, v.GetStringBytes(key))
 	}
-
+	
 	// Output:
 	// a[0]=foo_0
 	// a[1]=bar_1
@@ -66,15 +66,15 @@ func ExampleValue_MarshalTo() {
 	if err != nil {
 		log.Fatalf("cannot parse json: %s", err)
 	}
-
+	
 	// Marshal items.0 into newly allocated buffer.
 	buf := v.Get("items", "0").MarshalTo(nil)
 	fmt.Printf("items.0 = %s\n", buf)
-
+	
 	// Re-use buf for marshaling items.1.
 	buf = v.Get("items", "1").MarshalTo(buf[:0])
 	fmt.Printf("items.1 = %s\n", buf)
-
+	
 	// Output:
 	// items.0 = {"key":"foo","value":123.456,"arr":[1,"foo"]}
 	// items.1 = {"key":"bar","field":[3,4,5]}
@@ -87,23 +87,23 @@ func ExampleValue_Get() {
 	if err != nil {
 		log.Fatalf("cannot parse json: %s", err)
 	}
-
+	
 	vv := v.Get("foo", "0", "bar", "x")
 	fmt.Printf("foo[0].bar.x=%s\n", vv.GetStringBytes())
-
+	
 	vv = v.Get("qwe")
 	fmt.Printf("qwe=%v\n", vv.GetBool())
-
+	
 	vv = v.Get("foo", "1")
 	fmt.Printf("foo[1]=%s\n", vv)
-
+	
 	vv = v.Get("foo").Get("1").Get("1")
 	fmt.Printf("foo[1][1]=%s\n", vv)
-
+	
 	// non-existing key
 	vv = v.Get("foo").Get("bar").Get("baz", "1234")
 	fmt.Printf("foo.bar.baz[1234]=%v\n", vv)
-
+	
 	// Output:
 	// foo[0].bar.x=434
 	// qwe=true
@@ -122,13 +122,13 @@ func ExampleValue_Type() {
 		"false": false,
 		"null": null
 	}`
-
+	
 	var p fastjson.Parser
 	v, err := p.Parse(s)
 	if err != nil {
 		log.Fatalf("cannot parse json: %s", err)
 	}
-
+	
 	fmt.Printf("%s\n", v.Get("object").Type())
 	fmt.Printf("%s\n", v.Get("array").Type())
 	fmt.Printf("%s\n", v.Get("string").Type())
@@ -136,7 +136,7 @@ func ExampleValue_Type() {
 	fmt.Printf("%s\n", v.Get("true").Type())
 	fmt.Printf("%s\n", v.Get("false").Type())
 	fmt.Printf("%s\n", v.Get("null").Type())
-
+	
 	// Output:
 	// object
 	// array
@@ -153,7 +153,7 @@ func ExampleObject_Visit() {
 		"arr": [ 23,4, "bar" ],
 		"str": "foobar"
 	}`
-
+	
 	var p fastjson.Parser
 	v, err := p.Parse(s)
 	if err != nil {
@@ -163,7 +163,7 @@ func ExampleObject_Visit() {
 	if err != nil {
 		log.Fatalf("cannot obtain object from json value: %s", err)
 	}
-
+	
 	o.Visit(func(k []byte, v *fastjson.Value) {
 		switch string(k) {
 		case "obj":
@@ -174,7 +174,7 @@ func ExampleObject_Visit() {
 			fmt.Printf("string %s\n", v)
 		}
 	})
-
+	
 	// Output:
 	// object {"foo":1234}
 	// array [23,4,"bar"]
@@ -186,7 +186,7 @@ func ExampleValue_GetStringBytes() {
 		{"foo": "bar"},
 		[123, "baz"]
 	]`
-
+	
 	var p fastjson.Parser
 	v, err := p.Parse(s)
 	if err != nil {
@@ -196,7 +196,7 @@ func ExampleValue_GetStringBytes() {
 	fmt.Printf("v[1][1] = %q\n", v.GetStringBytes("1", "1"))
 	fmt.Printf("v[1][0] = %q\n", v.GetStringBytes("1", "0"))
 	fmt.Printf("v.foo.bar.baz = %q\n", v.GetStringBytes("foo", "bar", "baz"))
-
+	
 	// Output:
 	// v[0].foo = "bar"
 	// v[1][1] = "baz"
