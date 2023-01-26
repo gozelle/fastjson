@@ -1,7 +1,6 @@
 package fastjson
 
 import (
-	"bytes"
 	"fmt"
 )
 
@@ -23,11 +22,7 @@ func EqualsBytes(a, b []byte) (err error) {
 		return
 	}
 	if va.Type() != TypeArray && va.Type() != TypeObject {
-		ok := bytes.Equal(a, b)
-		if !ok {
-			err = fmt.Errorf("a: %s != b: %s", string(a), string(b))
-		}
-		return
+		return equals(va, vb)
 	} else if va.Type() == TypeArray {
 		return equalsArray(va, vb)
 	} else {
