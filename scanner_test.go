@@ -14,7 +14,7 @@ func TestScanner(t *testing.T) {
 		var bb bytes.Buffer
 		for sc.Next() {
 			v := sc.Value()
-			fmt.Fprintf(&bb, "%s", v)
+			fmt.Fprintf(&bb, "%s", v.Raw())
 		}
 		if err := sc.Error(); err != nil {
 			t.Fatalf("unexpected error: %s", err)

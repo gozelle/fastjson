@@ -9,7 +9,7 @@ func BenchmarkArenaTypicalUse(b *testing.B) {
 	// Determine the length of created object
 	var aa Arena
 	obj := benchCreateArenaObject(&aa)
-	objLen := len(obj.String())
+	objLen := len(obj.Raw())
 	b.SetBytes(int64(objLen))
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {

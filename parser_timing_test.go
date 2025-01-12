@@ -98,7 +98,7 @@ func benchmarkObjectGet(b *testing.B, itemsCount, lookupsCount int) {
 			}
 			o := v.GetObject()
 			for i := 0; i < lookupsCount; i++ {
-				sb := o.Get(key).GetStringBytes()
+				sb := o.Get(key).GetString()
 				if string(sb) != expectedValue {
 					panic(fmt.Errorf("unexpected value; got %q; want %q", sb, expectedValue))
 				}
@@ -238,7 +238,7 @@ func benchmarkFastJSONParseGet(b *testing.B, s string) {
 				panic(fmt.Errorf("unexpected error: %s", err))
 			}
 			n += v.GetInt("sid")
-			n += len(v.GetStringBytes("uuid"))
+			n += len(v.GetString("uuid"))
 			p := v.Get("person")
 			if p != nil {
 				n++

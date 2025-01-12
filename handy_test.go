@@ -238,7 +238,7 @@ func TestParse(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
-	str := v.String()
+	str := v.Raw()
 	if str != `{"foo":"bar"}` {
 		t.Fatalf("unexpected value parsed: %q; want %q", str, `{"foo":"bar"}`)
 	}
@@ -249,7 +249,7 @@ func TestParseBytes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
-	str := v.String()
+	str := v.Raw()
 	if str != `{"foo":"bar"}` {
 		t.Fatalf("unexpected value parsed: %q; want %q", str, `{"foo":"bar"}`)
 	}
@@ -258,7 +258,7 @@ func TestParseBytes(t *testing.T) {
 func TestMustParse(t *testing.T) {
 	s := `{"foo":"bar"}`
 	v := MustParse(s)
-	str := v.String()
+	str := v.Raw()
 	if str != s {
 		t.Fatalf("unexpected value parsed; %q; want %q", str, s)
 	}

@@ -17,7 +17,7 @@ func GetString(data []byte, keys ...string) string {
 		handyPool.Put(p)
 		return ""
 	}
-	sb := v.GetStringBytes(keys...)
+	sb := v.GetString(keys...)
 	str := string(sb)
 	handyPool.Put(p)
 	return str
@@ -38,7 +38,7 @@ func GetBytes(data []byte, keys ...string) []byte {
 		handyPool.Put(p)
 		return nil
 	}
-	sb := v.GetStringBytes(keys...)
+	sb := v.GetString(keys...)
 
 	// Make a copy of sb, since sb belongs to p.
 	var b []byte

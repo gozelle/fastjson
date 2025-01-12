@@ -68,7 +68,7 @@ func testArena(a *Arena) error {
 	obj.Set("s", s)
 	o.Set("obj", obj)
 
-	str := o.String()
+	str := o.Raw()
 	strExpected := `{"nil1":null,"nil2":null,"false":false,"true":true,"ni":123,"nf":1.23,"ns":34.43,"str1":"foo","str2":"xx","a":["foo",123],"obj":{"s":"foo"}}`
 	if str != strExpected {
 		return fmt.Errorf("unexpected json\ngot\n%s\nwant\n%s", str, strExpected)

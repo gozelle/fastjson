@@ -89,7 +89,7 @@ func TestValueDelSet(t *testing.T) {
 	// Add invalid array index to the array
 	va.Set("invalid", MustParse(`"nonsense"`))
 
-	str := v.String()
+	str := v.Raw()
 	strExpected := `{"x":["foobar",3,null,[3]]}`
 	if str != strExpected {
 		t.Fatalf("unexpected string representation for o: got %q; want %q", str, strExpected)

@@ -9,7 +9,7 @@ type EqualsTest struct {
 }
 
 func TestEquals(t *testing.T) {
-	
+
 	tests := []EqualsTest{
 		{
 			a:     `{"a": 1, "b":{"b1":2, "b2": 3}, "d":[1,2,3]}`,
@@ -52,7 +52,7 @@ func TestEquals(t *testing.T) {
 			error: true,
 		},
 	}
-	
+
 	for i, v := range tests {
 		err := Equals(v.a, v.b)
 		if v.error {
@@ -66,5 +66,16 @@ func TestEquals(t *testing.T) {
 			}
 		}
 	}
-	
+
+	err := Equals(
+		`{"a": 1, "b":{"b1":1, "b2": 3}, "d":[{"a":1}]}`,
+		`{"a": 2, "b":{"b1":2, "b2": "3"}, "d": [{"a":2}]}`,
+		"$.a",
+		"$.b.b1",
+		"$.b.b2",
+		"$.d.0.a",
+	)
+	if err != nil {
+		t.Fatalf("unexpect error, got error: %s", err)
+	}
 }

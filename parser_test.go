@@ -218,7 +218,7 @@ func TestValueInvalidTypeConversion(t *testing.T) {
 	}
 
 	// string
-	_, err = a[2].StringBytes()
+	_, err = a[2].String()
 	if err != nil {
 		t.Fatalf("unexpected error when obtaining string: %s", err)
 	}
@@ -248,7 +248,7 @@ func TestValueInvalidTypeConversion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error when obtaining float64: %s", err)
 	}
-	_, err = a[3].StringBytes()
+	_, err = a[3].String()
 	if err == nil {
 		t.Fatalf("expecting non-nil error when trying to obtain string from number")
 	}
@@ -258,7 +258,7 @@ func TestValueInvalidTypeConversion(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error when obtaining bool: %s", err)
 	}
-	_, err = a[4].StringBytes()
+	_, err = a[4].String()
 	if err == nil {
 		t.Fatalf("expecting non-nil error when trying to obtain string from bool")
 	}
@@ -313,11 +313,11 @@ func TestValueGetTyped(t *testing.T) {
 	}
 	a = v.GetArray("obj")
 	if a != nil {
-		t.Fatalf("unexpected non-nil array: %s", a)
+		t.Fatalf("unexpected non-nil array: %v", a)
 	}
 	a = v.GetArray("foo", "bar")
 	if a != nil {
-		t.Fatalf("unexpected non-nil array: %s", a)
+		t.Fatalf("unexpected non-nil array: %v", a)
 	}
 	n := v.GetInt("foo")
 	if n != 123 {
@@ -367,11 +367,11 @@ func TestValueGetTyped(t *testing.T) {
 	if f != 0 {
 		t.Fatalf("unexpected value; got %f; want %f", f, 0.0)
 	}
-	sb := v.GetStringBytes("bar")
+	sb := v.GetString("bar")
 	if string(sb) != "433" {
 		t.Fatalf("unexpected value; got %q; want %q", sb, "443")
 	}
-	sb = v.GetStringBytes("foo")
+	sb = v.GetString("foo")
 	if sb != nil {
 		t.Fatalf("unexpected value; got %q; want %q", sb, []byte(nil))
 	}
@@ -441,7 +441,7 @@ func TestVisitNil(t *testing.T) {
 		t.Fatalf("obtained an object for non-existing key: %#v", o)
 	}
 	o.Visit(func(k []byte, v *Value) {
-		t.Fatalf("unexpected visit call; k=%q; v=%s", k, v)
+		t.Fatalf("unexpected visit call; k=%q; v=%s", k, v.Raw())
 	})
 }
 
@@ -455,11 +455,11 @@ func TestValueGet(t *testing.T) {
 	}
 
 	t.Run("positive", func(t *testing.T) {
-		sb := v.GetStringBytes("")
+		sb := v.GetString("")
 		if string(sb) != "empty-key" {
 			t.Fatalf("unexpected value for empty key; got %q; want %q", sb, "empty-key")
 		}
-		sb = v.GetStringBytes("empty-value")
+		sb = v.GetString("empty-value")
 		if string(sb) != "" {
 			t.Fatalf("unexpected non-empty value: %q", sb)
 		}
@@ -481,12 +481,12 @@ func TestValueGet(t *testing.T) {
 				if v.Type() != TypeArray {
 					t.Fatalf("unexpected value type; got %d; want %d", v.Type(), TypeArray)
 				}
-				s := v.String()
+				s := v.Raw()
 				if s != `["baz"]` {
 					t.Fatalf("unexpected array; got %q; want %q", s, `["baz"]`)
 				}
 			case "x":
-				sb, err := v.StringBytes()
+				sb, err := v.String()
 				if err != nil {
 					t.Fatalf("cannot obtain string: %s", err)
 				}
@@ -544,7 +544,7 @@ func TestParserParse(t *testing.T) {
 		if n != 2 {
 			t.Fatalf("unexpected int; got %d; want %d", n, 2)
 		}
-		sb := v.GetStringBytes("\\\"\u1234x")
+		sb := v.GetString("\\\"\u1234x")
 		if string(sb) != `\fЗУ\\` {
 			t.Fatalf("unexpected string; got %q; want %q", sb, `\fЗУ\\`)
 		}
@@ -556,7 +556,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected error when parsing string")
 		}
 		// Make sure only valid string part remains
-		sb, err := v.StringBytes()
+		sb, err := v.String()
 		if err != nil {
 			t.Fatalf("cannot obtain string: %s", err)
 		}
@@ -568,7 +568,7 @@ func TestParserParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error when parsing string")
 		}
-		sb, err = v.StringBytes()
+		sb, err = v.String()
 		if err != nil {
 			t.Fatalf("cannot obtain string: %s", err)
 		}
@@ -580,7 +580,7 @@ func TestParserParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error when parsing string")
 		}
-		sb, err = v.StringBytes()
+		sb, err = v.String()
 		if err != nil {
 			t.Fatalf("cannot obtain string: %s", err)
 		}
@@ -665,7 +665,7 @@ func TestParserParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected error when parsing json string: %s", err)
 		}
-		sb := v.GetStringBytes()
+		sb := v.GetString()
 		if string(sb) != `{"foo": 123}` {
 			t.Fatalf("unexpected string value; got %q; want %q", sb, `{"foo": 123}`)
 		}
@@ -749,7 +749,7 @@ func TestParserParse(t *testing.T) {
 		if n != 0 {
 			t.Fatalf("unexpected number of items in empty object: %d; want 0", n)
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "{}" {
 			t.Fatalf("unexpected string representation of empty object: got %q; want %q", s, "{}")
 		}
@@ -772,7 +772,7 @@ func TestParserParse(t *testing.T) {
 		if n != 0 {
 			t.Fatalf("unexpected number of items in empty array: %d; want 0", n)
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "[]" {
 			t.Fatalf("unexpected string representation of empty array: got %q; want %q", s, "[]")
 		}
@@ -787,7 +787,7 @@ func TestParserParse(t *testing.T) {
 		if tp != TypeNull || tp.String() != "null" {
 			t.Fatalf("unexpected value obtained for null: %#v", v)
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "null" {
 			t.Fatalf("unexpected string representation of null; got %q; want %q", s, "null")
 		}
@@ -809,7 +809,7 @@ func TestParserParse(t *testing.T) {
 		if !b {
 			t.Fatalf("expecting true; got false")
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "true" {
 			t.Fatalf("unexpected string representation of true; got %q; want %q", s, "true")
 		}
@@ -831,7 +831,7 @@ func TestParserParse(t *testing.T) {
 		if b {
 			t.Fatalf("expecting false; got true")
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "false" {
 			t.Fatalf("unexpected string representation of false; got %q; want %q", s, "false")
 		}
@@ -853,7 +853,7 @@ func TestParserParse(t *testing.T) {
 		if n != 12345 {
 			t.Fatalf("unexpected value obtained for integer; got %d; want %d", n, 12345)
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "12345" {
 			t.Fatalf("unexpected string representation of integer; got %q; want %q", s, "12345")
 		}
@@ -875,7 +875,7 @@ func TestParserParse(t *testing.T) {
 		if n != int64(-8838840643388017390) {
 			t.Fatalf("unexpected value obtained for int64; got %d; want %d", n, int64(-8838840643388017390))
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "-8838840643388017390" {
 			t.Fatalf("unexpected string representation of int64; got %q; want %q", s, "-8838840643388017390")
 		}
@@ -897,7 +897,7 @@ func TestParserParse(t *testing.T) {
 		if n != uint64(18446744073709551615) {
 			t.Fatalf("unexpected value obtained for uint; got %d; want %d", n, uint64(18446744073709551615))
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "18446744073709551615" {
 			t.Fatalf("unexpected string representation of uint; got %q; want %q", s, "18446744073709551615")
 		}
@@ -919,7 +919,7 @@ func TestParserParse(t *testing.T) {
 		if n != 18446744073709551615 {
 			t.Fatalf("unexpected value obtained for uint64; got %d; want %d", n, uint64(18446744073709551615))
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "18446744073709551615" {
 			t.Fatalf("unexpected string representation of uint64; got %q; want %q", s, "18446744073709551615")
 		}
@@ -941,7 +941,7 @@ func TestParserParse(t *testing.T) {
 		if n != -12.345 {
 			t.Fatalf("unexpected value obtained for integer; got %f; want %f", n, -12.345)
 		}
-		s := v.String()
+		s := v.Raw()
 		if s != "-12.345" {
 			t.Fatalf("unexpected string representation of integer; got %q; want %q", s, "-12.345")
 		}
@@ -956,14 +956,14 @@ func TestParserParse(t *testing.T) {
 		if tp != TypeString || tp.String() != "string" {
 			t.Fatalf("unexpected type obtained for string: %#v", v)
 		}
-		sb, err := v.StringBytes()
+		sb, err := v.String()
 		if err != nil {
 			t.Fatalf("cannot obtain string: %s", err)
 		}
 		if string(sb) != "foo bar" {
 			t.Fatalf("unexpected value obtained for string; got %q; want %q", sb, "foo bar")
 		}
-		ss := v.String()
+		ss := v.Raw()
 		if ss != `"foo bar"` {
 			t.Fatalf("unexpected string representation of string; got %q; want %q", ss, `"foo bar"`)
 		}
@@ -978,14 +978,14 @@ func TestParserParse(t *testing.T) {
 		if tp != TypeString {
 			t.Fatalf("unexpected type obtained for string: %#v", v)
 		}
-		sb, err := v.StringBytes()
+		sb, err := v.String()
 		if err != nil {
 			t.Fatalf("cannot obtain string: %s", err)
 		}
 		if string(sb) != "\n\t\\foo\"bar\u3423x/\b\f\r\\" {
 			t.Fatalf("unexpected value obtained for string; got %q; want %q", sb, "\n\t\\foo\"bar\u3423x/\b\f\r\\")
 		}
-		ss := v.String()
+		ss := v.Raw()
 		if ss != `"\n\t\\foo\"bar㐣x/\b\f\r\\"` {
 			t.Fatalf("unexpected string representation of string; got %q; want %q", ss, `"\n\t\\foo\"bar㐣x/\b\f\r\\"`)
 		}
@@ -1014,7 +1014,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected value obtained for non-existing key: %#v", vv)
 		}
 
-		s := v.String()
+		s := v.Raw()
 		if s != `{"foo":"bar"}` {
 			t.Fatalf("unexpected string representation for object; got %q; want %q", s, `{"foo":"bar"}`)
 		}
@@ -1050,7 +1050,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected value obtained for non-existing key: %#v", vv)
 		}
 
-		s := v.String()
+		s := v.Raw()
 		if s != `{"foo":[1,2,3],"bar":{},"baz":123.456}` {
 			t.Fatalf("unexpected string representation for object; got %q; want %q", s, `{"foo":[1,2,3],"bar":{},"baz":123.456}`)
 		}
@@ -1076,7 +1076,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected type for a[0]; got %d; want %d", a[0].Type(), TypeObject)
 		}
 
-		s := v.String()
+		s := v.Raw()
 		if s != `[{"bar":[[],[[]]]}]` {
 			t.Fatalf("unexpected string representation for array; got %q; want %q", s, `[{"bar":[[],[[]]]}]`)
 		}
@@ -1111,7 +1111,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected type for a[3]; got %d; want %d", a[3].Type(), TypeArray)
 		}
 
-		s := v.String()
+		s := v.Raw()
 		if s != `[1,"foo",{"bar":[],"baz":""},["x","y"]]` {
 			t.Fatalf("unexpected string representation for array; got %q; want %q", s, `[1,"foo",{"bar":[],"baz":""},["x","y"]]`)
 		}
@@ -1127,7 +1127,7 @@ func TestParserParse(t *testing.T) {
 			t.Fatalf("unexpected type obtained for object: %#v", v)
 		}
 
-		ss := v.String()
+		ss := v.Raw()
 		if ss != s {
 			t.Fatalf("unexpected string representation for object; got %q; want %q", ss, s)
 		}
@@ -1137,7 +1137,7 @@ func TestParserParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("cannot parse largeFixture: %s", err)
 		}
-		ss = v.String()
+		ss = v.Raw()
 		if ss != s {
 			t.Fatalf("unexpected string representation for object; got\n%q; want\n%q", ss, s)
 		}
@@ -1163,7 +1163,7 @@ func TestParserParse(t *testing.T) {
 					f(nil, vv)
 				}
 			case TypeString:
-				sb, err := v.StringBytes()
+				sb, err := v.String()
 				if err != nil {
 					t.Fatalf("cannot obtain string: %s", err)
 				}
@@ -1193,7 +1193,7 @@ func TestParserParse(t *testing.T) {
 		}
 
 		// Make sure the json remains valid after visiting all the items.
-		ss := v.String()
+		ss := v.Raw()
 		if ss != s {
 			t.Fatalf("unexpected string representation for object; got\n%q; want\n%q", ss, s)
 		}
@@ -1223,14 +1223,14 @@ func TestParseBigObject(t *testing.T) {
 	for i := 0; i < itemsCount; i++ {
 		k := fmt.Sprintf("key_%d", i)
 		expectedV := fmt.Sprintf("value_%d", i)
-		sb := v.GetStringBytes(k)
+		sb := v.GetString(k)
 		if string(sb) != expectedV {
 			t.Fatalf("unexpected value obtained; got %q; want %q", sb, expectedV)
 		}
 	}
 
 	// verify non-existing key returns nil
-	sb := v.GetStringBytes("non-existing-key")
+	sb := v.GetString("non-existing-key")
 	if sb != nil {
 		t.Fatalf("unexpected non-nil value for non-existing-key: %q", sb)
 	}
@@ -1264,13 +1264,13 @@ func testParseGetSerial(s string) error {
 		if err != nil {
 			return fmt.Errorf("cannot parse %q: %s", s, err)
 		}
-		sb := v.GetStringBytes("foo")
+		sb := v.GetString("foo")
 		if string(sb) != "bar" {
 			return fmt.Errorf("unexpected value for key=%q; got %q; want %q", "foo", sb, "bar")
 		}
 		vv := v.Get("empty_obj", "non-existing-key")
 		if vv != nil {
-			return fmt.Errorf("unexpected non-nil value got: %s", vv)
+			return fmt.Errorf("unexpected non-nil value got: %s", vv.Raw())
 		}
 	}
 	return nil
