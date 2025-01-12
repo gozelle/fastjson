@@ -54,7 +54,7 @@ func TestEquals(t *testing.T) {
 	}
 
 	for i, v := range tests {
-		err := Equals(v.a, v.b)
+		err := Equal(v.a, v.b)
 		if v.error {
 			if err == nil {
 				t.Fatalf("test %d expect error, got nil", i)
@@ -67,7 +67,7 @@ func TestEquals(t *testing.T) {
 		}
 	}
 
-	err := Equals(
+	err := Equal(
 		`{"a": 1, "b":{"b1":1, "b2": 3}, "d":[{"a":1}]}`,
 		`{"a": 2, "b":{"b1":2, "b2": "3"}, "d": [{"a":2}]}`,
 		"$.a",

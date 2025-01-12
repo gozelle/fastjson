@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func Equals(a, b string, ignorePaths ...string) error {
+func Equal(a, b string, ignorePaths ...string) error {
 	return EqualsBytes([]byte(a), []byte(b), ignorePaths...)
 }
 
